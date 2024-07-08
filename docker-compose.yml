@@ -1,0 +1,30 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/postgres
+    depends_on:
+      - postgres
+    networks:
+       - app-network
+  postgres:
+    image: postgres:16.1-alpine3.19
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+       - app-network
+networks:
+  app-network:
+    driver: bridge
